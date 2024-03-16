@@ -15,13 +15,15 @@ for n in range(5) :
 
 
 ### Poisson function ###
-mu = np.average(x, weights=death)   #mean as µ parameter
+mu = np.average(x, weights=death)   #mean as mu parameter
 distP = poisson(mu)
 
 
 ### plot ###
+bins = np.linspace(-0.5, 4.5, 6)
+
 plt.figure()
-plt.hist(counts, bins=x, density=True, histtype="step", lw=2, color="royalblue")
+plt.hist(counts, bins=bins, density=True, histtype="step", lw=2, color="royalblue")
 plt.plot(x, distP.pmf(x), color="red")
 plt.title("Prussian cavalryman horse-kick deaths")
 plt.xticks(np.arange(5))

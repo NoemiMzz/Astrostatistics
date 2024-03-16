@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+from tqdm import tqdm
 
 ################################################################################################################
 
-N = 5000   #number of samples
+N = 100000   #number of samples
 s = 5   #sigma parameter
-it = 500   #iterations for fix N
+it = 5000   #iterations for fix N
 
 sample_hist = False
 
@@ -19,13 +20,12 @@ def f(x, s) :
 ### FIX N ######################################################################################################
 
 result = 2*s**4
-print("Expected result: ", result)
 
 
 ### Montecarlo integration ###
 integral_fix = []
 
-for i in range(it) :
+for i in tqdm(range(it)) :
 
     distG_sample = norm(loc=0 , scale=s)   #function p(x)
     
@@ -44,7 +44,8 @@ plt.hist(integral_fix, density=True, bins=20, color="deepskyblue")   #results
 mu = np.mean(integral_fix)   #mu as the average
 sigma = np.std(integral_fix)   #sigma as standard deviation
 
-print("Mean of Montecarlo integrations: ", round(mu, 3))
+print("\nExpected result: ", result)
+print("Mean of Montecarlo integrations: ", round(mu, 3), "\n")
 
 distG = norm(loc=mu , scale=sigma)   #fit "by hand" of a gaussian
 
@@ -61,9 +62,9 @@ plt.show()
 ### VARIABLE N #################################################################################################
 
 integral_var = []
-N_values = np.linspace(10, N, 200, dtype=int)
+N_values = np.linspace(100, N, int(N/100), dtype=int)
 
-for n in range(len(N_values)) :
+for n in tqdm(range(len(N_values))) :
 
     distG_sample = norm(loc=0 , scale=s)   #function p(x)
     
@@ -75,8 +76,8 @@ for n in range(len(N_values)) :
     integral_var.append(0.5 * np.mean(f(x, s)))   #integral computation (for every N)
 
 plt.figure()    
-plt.plot(N_values, abs(np.array(integral_var) - result), color="royalblue")
+plt.plot(N_values, (np.array(integral_var) - result)/result , color="royalblue")
 plt.title("Error increasing sample")
 plt.xlabel("N")
-plt.ylabel("| Montecarlo - real result |")
+plt.ylabel("% error")
 plt.show()
