@@ -1,81 +1,83 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import ecdf
-from astroML.datasets import fetch_dr7_quasar
+from scipy.stats import norm
 from tqdm import tqdm
 
 ################################################################################################################
 
-N = 1000000
-b = 24   #number of bins
+N = 1000   #number of samples
+s = 5   #sigma parameter
+it = 5000   #iterations for fix N
+
+sample_hist = False
+
+### FUNCTIONS ##################################################################################################
+
+def f(x, s) :
+    return x**3 * s * np.sqrt(2*np.pi)
 
 #%%
-### DATA FROM SDSS #############################################################################################
+### FIX N ######################################################################################################
 
-# Fetch the quasar data
-data = fetch_dr7_quasar()
+result = 2*s**4
 
-# select the first 10000 points
-data = data[:10000]
 
-z = data['redshift']
+### Montecarlo integration ###
+integral_fix = []
 
-# quasars histogram
+for i in tqdm(range(it)) :
+
+    distG_sample = norm(loc=0 , scale=s)   #function p(x)
+    
+    x = abs(distG_sample.rvs(N))   #sample generation
+    
+    if sample_hist :
+        plt.hist(f(x, s), density=True)
+    
+    integral_fix.append(0.5 * np.mean(f(x, s)))   #integral computation (for every sample)
+
+
+### results distribution ###
 plt.figure()
-hights, bins, patches = plt.hist(z, bins=b, density=True, color="deepskyblue", label="SSDS data")
+plt.hist(integral_fix, density=True, bins=20, color="deepskyblue")   #results
 
-#%%
-### REJECTION ##################################################################################################
+mu = np.mean(integral_fix)   #mu as the average
+sigma = np.std(integral_fix)   #sigma as standard deviation
 
-#generating uniform points
-u_x = np.random.uniform(bins[0], bins[b], N)
-u_y = np.random.uniform(0, max(hights), N)
+print("\nExpected result: ", result)
+print("Mean of Montecarlo integrations: ", round(mu, 3), "\n")
 
+distG = norm(loc=mu , scale=sigma)   #fit "by hand" of a gaussian
 
-### point selection ###
-clone = []
-for n in tqdm(range(N)) :
-    for i in range(b) :
-        if bins[i] < u_x[n] < bins[i+1] :   #if the x is in the bin
-            if u_y[n] < hights[i] :   #and the y is unfìder the hist
-                clone.append(u_x[n])   #select the point
+xgrid = np.linspace(result-3*sigma, result+3*sigma, 1000)
+gauss = distG.pdf(xgrid)
 
-#plot and confront with the given data
-plt.hist(clone, bins=b, density=True, histtype="step", lw=2, color="royalblue", label="Cloned data")
-plt.legend()
-plt.title("Rejection sampling")
-plt.xlabel("redshift")
+plt.plot(xgrid, gauss, color="orange")
+plt.title("Results distribution")
+plt.xlabel("result")
+plt.ylabel("frequency")
 plt.show()
 
 #%%
-### INVERSE TRANSFORM ##########################################################################################
+### VARIABLE N #################################################################################################
 
-### cdf computation and inversion ###
-res = ecdf(z)
-x_cdf = res.cdf.quantiles
-z_cdf = res.cdf.probabilities
+integral_var = []
+N_values = np.linspace(100, N, int(N/100), dtype=int)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7,3.5))
-fig.suptitle("Cumulative density function")
-ax1.plot(x_cdf, z_cdf, color="green", lw=2, label="cdf")   #cdf
-ax1.set_xlabel("redshift")
-ax1.legend()
-ax2.plot(z_cdf, x_cdf, color="orange", lw=2, label="cdf$^{-1}$")   #inverse of cdf
-ax2.yaxis.tick_right()
-ax2.yaxis.set_label_position("right")
-ax2.set_ylabel("redshift")
-ax2.legend()
+for n in tqdm(range(len(N_values))) :
 
+    distG_sample = norm(loc=0 , scale=s)   #function p(x)
+    
+    x = abs(distG_sample.rvs(N_values[n]))   #sample generation
+    
+    if sample_hist :
+        plt.hist(f(x, s), density=True)
+    
+    integral_var.append(0.5 * np.mean(f(x, s)))   #integral computation (for every N)
 
-### sample from cdf ###
-sample_x = np.random.uniform(0, 1, N)   #random x-values picked uniformely
-sample_z = np.interp(sample_x, z_cdf, x_cdf)   #corresponding y-values
-
-# plot and confront with the given data
-plt.figure()
-plt.hist(z, bins=b, density=True, color="deepskyblue", label="SSDS data")
-plt.hist(sample_z, bins=b, density=True, histtype="step", lw=2, color="royalblue", label="Cloned data")
-plt.legend()
-plt.title("Inverse transform sampling")
-plt.xlabel("redshift")
+plt.figure()    
+plt.plot(N_values, (np.array(integral_var) - result)/result , color="royalblue")
+plt.title("Error increasing sample")
+plt.xlabel("N")
+plt.ylabel("% error")
 plt.show()
