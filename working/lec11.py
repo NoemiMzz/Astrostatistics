@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import emcee
 import corner
-from tqdm import tqdm
 
 ### DATA AND PARAMETERS ########################################################################################
 
@@ -20,11 +19,11 @@ nsteps = 10**4   #number of steps
 def burst(theta, t):
     b, A, t0, alpha = theta
     flux = []
-    for t in range(N):
-        if t < t0:
+    for time in t:
+        if time < t0:
             flux.append(b)
-        if t >= t0:
-            flux.append( b + A * np.exp(- alpha * (t - t0)) )
+        if time >= t0:
+            flux.append( b + A * np.exp(- alpha * (time - t0)) )
     return np.array(flux)
     
 def log_prior(theta):
@@ -68,7 +67,7 @@ x = np.linspace(0, 100, 100)
 plt.figure(figsize=(12,4))
 plt.scatter(t, f, color='black')
 plt.errorbar(t, f, sigma, linestyle='None', ecolor='gainsboro', capsize=3)
-plt.plot(x, burst(theta_quick, t), color='limegreen')
+plt.plot(x, burst(theta_quick, x), color='limegreen')
 plt.title("Burst data")
 plt.xlabel("time")
 plt.ylabel("flux")
@@ -77,7 +76,7 @@ plt.show()
 
 ### sampling and MCMC ###
 start_guess = theta_quick + 10**(-1) * np.random.randn(nwalkers, ndim)
-sampler = emcee.EnsembleSampler(nwalkers, ndim, log_posterior, args=(t, f, sigma))
+sampler = emcee.EnsembleSampler(nwalkers, ndim, log_posterior, args=[t, f, sigma])
 sampler.run_mcmc(start_guess, nsteps, progress=True);
 
 
@@ -116,7 +115,7 @@ plt.errorbar(t, f, sigma, linestyle='None', ecolor='gainsboro', capsize=3)
 indices = np.random.randint(len(flat_samples), size=100)
 for i in indices:
     sample = flat_samples[i]
-    plt.plot(x, burst(sample, t), "crimson", alpha=0.1)
+    plt.plot(x, burst(sample, x), "crimson", alpha=0.1)
 
 plt.title("Burst data")
 plt.xlabel("time")
