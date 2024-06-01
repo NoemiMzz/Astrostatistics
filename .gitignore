@@ -1,3 +1,12 @@
 .DS_Store
 .ipynb_checkpoints
 lectures/fig_correlations_dump.pkl
+hidden
+Summary_table.txt
+stars.csv
+lectures/GMMbayes_rrlyrae.pkl
+lectures/SVM_rrlyrae.pkl
+lectures/photoz_boosting.pkl
+lectures/photoz_forest.pkl
+solutions/sample_2e7_design_precessing_higherordermodes_3detectors.h5
+

@@ -28,11 +28,11 @@ The use of statistics is ubiquitous in astronomy and astrophysics. Modern advanc
 9. [Bayesian Statistical Inference: II](lectures/L09_bayesian.ipynb) Parameter estimation examples (Gaussian data, background). Model comparison: odds ratio. Approximate model comparison.
 10. [Bayesian Statistical Inference: III](lectures/L10_bayesian.ipynb). Monte Carlo methods. Markov chains. Burn-in. Metropolis-Hastings algorithm.  *
 11. [Bayesian Statistical Inference: IV](lectures/L11_bayesian.ipynb). MCMC diagnostics. Traceplots. Autocorrelation lenght. Samplers in practice: emcee and PyMC3. Gibbs sampling. Conjugate priors.  *
-12. [Bayesian Statistical Inference: V](lectures/L12_bayesian.ipynb). Evidence evaluation. Model selection. Nested sampling. Samplers in practice: dynesty. * 
+12. [Bayesian Statistical Inference: V](lectures/L12_bayesian.ipynb). Evidence evaluation. Model selection. Savage-Dickey density ratio. Nested sampling. Samplers in practice: dynesty. * 
 13. [Introduction II](lectures/L13_introduction.ipynb). Data mining and machine learning. Supervised and unsupervised learning. Overview of scikit-learn. Examples. *
 14. [Clustering](lectures/L14_clustering.ipynb). K-fold cross validation. Unsupervised clustering. K-Means Clustering. Mean-shift Clustering. Correlation functions. *
 15. [Dimensional Reduction I](lectures/L15_dimensionality.ipynb). Curse of dimensionality. Principal component analysis. Missing data. Non-negative matrix factorization. Independent component analysis. *
-16. [Dimensional Reduction II - Density estimation](lectures/L16_dimensionality.ipynb). Non-linear dimensional reduction. Locally linear embedding. Isometric mapping. t-distributed stochastic neighbor embedding. Data visualization. Recap of density estimation. KDE. Nearest-Neighbor. Gaussian Mixtures.
+16. [Dimensional Reduction II - Density estimation](lectures/L16_dimensionality.ipynb). Non-linear dimensional reduction. Locally linear embedding. Isometric mapping. t-SNE. Recap of density estimation. KDE. Nearest-Neighbor. Gaussian Mixtures. *Pills of modern research*
 17. [Regression I](lectures/L17_regression.ipynb). What is regression? Linear regression. Polynomial regression. Basis function regression. Kernel regression. Over/under fitting. Cross validation. Learning curves. *
 18. [Regression II](lectures/L18_regression.ipynb). Regularization. Ridge. LASSO. Non-linear regression. Gaussian process regression. Total least squares. *
 19. [Classification I](lectures/L19_classification.ipynb). Generative vs discriminative classification. Receiver Operating Characteristic (ROC) curve. Naive Bayes. Gaussian naive Bayes. Linear and quadratic discriminant analysis. GMM Bayes classification. K-nearest neighbor classifier. *
@@ -108,13 +108,14 @@ The class covers 6 credits = 42 hours = 21 lectures of 2 hours each. Our weekly 
  6. **21-03-24, 10.30am.**
  7. **25-03-24, 10.30am.** (Note different time!)
  - 28-03-24 Holiday
+ - 01-04-24 Holiday
  - 04-04-24, Davide is away for research
  8. **08-04-24, 8.30am.**
  - 11-04-24, Davide is away for research
  9. **12-04-24, 8.30am.** (Note different day!)
  10. **15-04-24, 8.30am.**
  - 18-04-24, Davide is away for research
- 11. **22-04-24, 8.30am.**
+ 11. **22-04-24, 8.30 am.**
  - 25-04-24 Holiday
  12. **29-04-24, 8.30am.**
  13. **30-04-24 10.30** (Note different day!)  
@@ -147,6 +148,7 @@ This class draws heavily from many others that came before me. Credit goes to:
 - Karen Leighly (University of Oklahoma): [seminar.ouml.org/](http://seminar.ouml.org).
 - Adam Miller (Northwestern University): [github.com/LSSTC-DSFP/LSSTC-DSFP-Sessions/](https://github.com/LSSTC-DSFP/LSSTC-DSFP-Sessions).
 - Jo Bovy (University of Toronto): [astro.utoronto.ca/~bovy/teaching.html](http://astro.utoronto.ca/~bovy/teaching.html).
+- Nicolas Audebert (IGN Paris): [github.com/nshaud/ml_for_astro](https://github.com/nshaud/ml_for_astro)
 - Thomas Wiecki (PyMC Labs): [twiecki.github.io/blog/2015/11/10/mcmc-sampling](http://twiecki.github.io/blog/2015/11/10/mcmc-sampling).
 - Aurelienne Geron (freelancer): [github.com/ageron/handson-ml2](https://github.com/ageron/handson-ml2).
 
