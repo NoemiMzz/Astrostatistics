@@ -15,7 +15,7 @@ for n in range(5) :
 
 
 ### Poisson function ###
-mu = np.average(x, weights=death)   #mean as mu parameter
+mu = np.average(x, weights=death)   #sample mean as the mu of the distribution
 distP = poisson(mu)
 
 
