@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import ecdf
+from scipy.stats import ks_2samp
 from astroML.datasets import fetch_dr7_quasar
 from tqdm import tqdm
 
@@ -27,6 +28,8 @@ hights, bins, patches = plt.hist(z, bins=b, density=True, color="deepskyblue", l
 #%%
 ### REJECTION ##################################################################################################
 
+print("\n- REJECTION SAMPLING -")
+
 #generating uniform points
 u_x = np.random.uniform(bins[0], bins[b], N)
 u_y = np.random.uniform(0, max(hights), N)
@@ -47,8 +50,14 @@ plt.title("Rejection sampling")
 plt.xlabel("redshift")
 plt.show()
 
+
+### distributions comparison ###
+print(ks_2samp(z, clone))
+
 #%%
 ### INVERSE TRANSFORM ##########################################################################################
+
+print("\n- INVERSE TRANSFORM SAMPLING -")
 
 ### cdf computation and inversion ###
 res = ecdf(z)   #empirical cdf
@@ -79,3 +88,7 @@ plt.legend()
 plt.title("Inverse transform sampling")
 plt.xlabel("redshift")
 plt.show()
+
+
+### distributions comparison ###
+print(ks_2samp(z, sample_z))

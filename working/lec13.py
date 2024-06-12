@@ -42,79 +42,78 @@ def plot_embedding(X, title):
     ax.set_title(title)
     ax.axis("off")
 
-################################################################################################################
+### DATA AND PARAMETERS ########################################################################################
+
+digits = load_digits()   #load the data
+print("\nImport data:")
+print(digits.images.shape)
+print("")
+print(digits.keys())
+
+data, target = digits.data, digits.target   #organize samples and targets
 
 plot_by_me = True
 
 #%%
 ### UNSUPERVISED ###############################################################################################
 
-digits = load_digits()   #load the data
-print("\nImport data:")
-print(digits.images.shape)
-print(digits.keys())
-print("\n")
-
-data, target = digits.data, digits.target
-
-
-### isomap for dim reduction ### 
-embedding = Isomap(n_components=2)
-digits_transformed = embedding.fit_transform(data)
+### isomap ### 
+embedding = Isomap(n_components=2, n_neighbors=7)
+data_red = embedding.fit_transform(data)   #reduce dimensionality of data
 print("\nReduced dimensions:")
-print(digits_transformed.shape)
-print("\n")
+print(data_red.shape)
 
 if plot_by_me:
     plt.figure()
-    plt.scatter(digits_transformed[:,0], digits_transformed[:,1], c=target, alpha=0.5, cmap='tab10')
+    plt.scatter(data_red[:,0], data_red[:,1], c=target, s=10, alpha=0.5, cmap='tab10')
     plt.colorbar(label='digit label', ticks=range(10))
     plt.clim(-0.5, 9.5)
     plt.title("ISOMAP")
     plt.show()
 else:
-    plot_embedding(digits_transformed, "ISOMAP")
+    plot_embedding(data_red, "ISOMAP")
+    
     
 #%%
 ### SUPERVISED #################################################################################################
 
-#split the data in train and validation
-Xtrain, Xtest, ytrain, ytest = train_test_split(data, target, test_size=0.2)
+### logistic regression ###
+Xtrain, Xtest, ytrain, ytest = train_test_split(data, target, test_size=0.2)   #split in train and validation
 
 #training the data
-clf = LogisticRegression(solver='sag').fit(Xtrain, ytrain)
+clf = LogisticRegression(solver='sag', max_iter=3000).fit(Xtrain, ytrain)
 
-
-### prediction ###
+#computing predictions
 pred_train = clf.predict(Xtrain)   #train set
-pred_test = clf.predict(Xtest)   #test set
+pred_test = clf.predict(Xtest)   #test set     
 
+
+### accuracy ###
 #visualize errors in the validation set
+print("\nValidation set:")
+print("pred\t true")
 for i in range(len(Xtest)):
     if pred_test[i] == ytest[i]:
-        print(pred_test[i], ytest[i])
+        print(pred_test[i], "\t", ytest[i])
     else:
-        print(pred_test[i], ytest[i], "  <--")
-print("\n")        
-
-print("Accuracy of training digits:")   #computing the accuracy score
+        print(pred_test[i], "\t", ytest[i], "  <--")   
+        
+print("\n\nAccuracy of training digits:")   #computing the accuracy score
 print(accuracy_score(ytrain, pred_train))   #train set
-print("\n")
-print("Accuracy of test digits:")
+print("\nAccuracy of test digits:")
 print(accuracy_score(ytest, pred_test))   #test set
-print("\n")
 
-print("Confusion matrix of training digits:")   #computing the confusion matrix
+print("\nConfusion matrix of training digits:")   #computing the confusion matrix
 print(confusion_matrix(ytrain, pred_train))   #train set
-print("\n")
-print("Confusion matrix of test digits:")
+print("\nConfusion matrix of test digits:")
 print(confusion_matrix(ytest, pred_test))   #test set
-print("\n")
 
 #visualize test confusion matrix
-plt.imshow(np.log(confusion_matrix(ytest, pred_test)), cmap='BuGn', interpolation='nearest');
-plt.ylabel('true')
-plt.xlabel('predicted');
+plt.figure()
+plt.imshow(confusion_matrix(ytest, pred_test), cmap='Blues', interpolation='nearest')
+plt.title("Confusion matrix")
+plt.xlabel('true')
+plt.show()
 
 
 ### print some digits ###
