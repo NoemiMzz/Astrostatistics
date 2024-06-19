@@ -64,6 +64,7 @@ proj = pca.transform(X)   #projection onto the new features
 info = pca.explained_variance_ratio_   #information of each new feature
 comp = pca.components_   #which old component is prevalent
 
+#print components
 names = ['Temperature', 'Luminosity', 'Radius', 'Absolute Magnitude']
 for i in range(2):
     print("\n- PCA"+str(i+1)+" contains", np.around(info[i]*100, 1), "% of the information")
@@ -73,6 +74,7 @@ for i in range(2):
           print("  ", str(names[j])+":", np.around(np.abs(comp[i, j]/sum_comp)*100, 1), "%")  
 print("\nWith 2 components I obtain", np.around(np.sum(info)*100, 1), "% of the information")
 
+#plot PCA results
 fig = plt.figure(figsize=(7, 7))
 sns.scatterplot(x=proj[:,0], y=proj[:,1], hue=labels)
 plt.xlabel("PCA1")
@@ -93,7 +95,7 @@ if print_k:
     print("\n--- Kfold ---")
 kf = KFold(n_splits=K, shuffle=True)
 for i, (train_index, test_index) in enumerate(kf.split(X)):
-    if print_k:
+    if print_k:   #if needed, print the folding divisions
         print("Fold:", i)
         print("  Train:", train_index)
         print("  Test:", test_index)
@@ -118,6 +120,7 @@ for i, (train_index, test_index) in enumerate(kf.split(X)):
 TrainErr_med = np.median(TrainErr, axis=0)
 CvErr_med = np.median(CvErr, axis=0)
 
+#plot the cross validation result
 plt.figure()
 plt.plot(max_dephts, TrainErr_med, color='navy', label="Training err")
 plt.plot(max_dephts, CvErr_med, color='navy', ls='dashed', label="CV error")
@@ -139,15 +142,17 @@ Xtrain, Xtest, ytrain, ytest = train_test_split(proj, star_type, test_size=0.30)
 #chose max depth
 MaxD_mr = 5
 
-#computing the efficiency
+#perform the classification
 clf = DecisionTreeClassifier(max_depth=MaxD_mr, criterion='entropy')
 clf.fit(Xtrain, ytrain)
 
 ypred = clf.predict(Xtest)
 
+#computing the efficiency
 C = confusion_matrix(ytest, ypred)
 print("\nEfficiency:", np.round((np.sum(C.diagonal())/len(ytest))*100, 2), "%")
 
+#plot confusion matrix
 plt.figure()
 plt.imshow(C, cmap='Blues', interpolation='nearest')
 plt.yticks(np.arange(6), le.classes_, fontsize=8)
@@ -157,6 +162,7 @@ plt.ylabel('true')
 plt.xlabel('predicted')
 plt.show()
 
+#plot decision boundaries from classification
 fig, ax = plt.subplots(1, figsize=(7, 7))
 DecisionBoundaryDisplay.from_estimator(clf, proj, response_method='predict', cmap='rainbow', alpha=0.3, ax=ax)
 ax.scatter(proj[:,0], proj[:,1], c=star_type, cmap='rainbow', edgecolors='k')
@@ -177,15 +183,17 @@ Xtrain, Xtest, ytrain, ytest = train_test_split(X, star_type, test_size=0.30)
 #chose max depth
 MaxD_mr = 5
 
-#computing the efficiency
+#perform the classification
 clf = DecisionTreeClassifier(max_depth=MaxD_mr, criterion='entropy')
 clf.fit(Xtrain, ytrain)
 
 ypred = clf.predict(Xtest)
 
+#computing the efficiency
 C = confusion_matrix(ytest, ypred)
 print("Efficiency:", np.round((np.sum(C.diagonal())/len(ytest))*100, 2), "%")
 
+#plot confusion matrix
 plt.figure()
 plt.imshow(C, cmap='Blues', interpolation='nearest')
 plt.yticks(np.arange(6), le.classes_, fontsize=8)

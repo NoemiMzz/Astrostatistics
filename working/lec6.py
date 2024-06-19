@@ -7,8 +7,8 @@ from tqdm import tqdm
 ################################################################################################################
 
 #always choose one :)
-#np.random.seed(3)   #3 gaussians
-np.random.seed(42)   #4 gaussians
+np.random.seed(3)   #3 gaussians
+#np.random.seed(42)   #4 gaussians
 
 ################################################################################################################
 
@@ -86,20 +86,24 @@ plt.xlabel("mass")
 plt.show
 
 ### compute which datapoints fit which guassian best ###
-label = gm_best.predict(data)   #compute component density
+label = gm_best.predict(data)   #predict in which gaussian each datapoint belongs
+
+_, counts = np.unique(label, return_counts=True)   #compute how many datapoints are in each gaussian
+
 
 #plot sorted data
 c = ['orange', 'green', 'crimson', 'deepskyblue']
 plt.figure()
 for k in range(best_num) :
-    plt.hist(x[label==k], density=True, color=c[k], alpha=0.5)
-    distG = w_best[k] * norm(loc=means_best[k] , scale=var_best[k]).pdf(xgrid) * 5   #normalization by eye
+    #renormalize the histogram based on the number of datapoints in each one
+    val, bins = np.histogram(x[label==k], density=True)
+    widths = np.diff(bins)
+    norm_val = val * (counts[k] / np.sum(counts))
+    plt.bar(bins[:-1], norm_val, widths, color=c[k], alpha=0.5, align='edge')   #plot each histogram
+    
+    distG = w_best[k] * norm(loc=means_best[k] , scale=var_best[k]).pdf(xgrid)
     plt.plot(xgrid, distG, color=c[k])   #plot each gaussian
 plt.title("BH masses distribution")
 plt.xlabel("mass")
 plt.show()
-
-#The fit with 3 gaussians seems (by eye) slightly more accurate
-#but the code better classifies which datapoint belongs to which gaussian with 4
-#(still, not a wonderful classification)
 

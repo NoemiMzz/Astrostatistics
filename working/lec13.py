@@ -1,13 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from matplotlib import offsetbox
 from sklearn.datasets import load_digits
 from sklearn.manifold import Isomap
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
+from sklearn.cluster import KMeans
+import warnings
+
+################################################################################################################
+
+conceal_warnings = True
+
+if conceal_warnings:
+    warnings.filterwarnings('ignore')
+    warnings.simplefilter('ignore')
 
 ### FUNCTIONS ##################################################################################################
 
@@ -47,8 +59,8 @@ def plot_embedding(X, title):
 digits = load_digits()   #load the data
 print("\nImport data:")
 print(digits.images.shape)
-print("")
-print(digits.keys())
+#print("")
+#print(digits.keys())
 
 data, target = digits.data, digits.target   #organize samples and targets
 
@@ -113,6 +125,7 @@ plt.figure()
 plt.imshow(confusion_matrix(ytest, pred_test), cmap='Blues', interpolation='nearest')
 plt.title("Confusion matrix")
 plt.xlabel('true')
+plt.ylabel('predicted')
 plt.show()
 
 
@@ -126,3 +139,38 @@ for i, ax in enumerate(axes.flat):
             color='green' if (ytest[i] == pred_test[i]) else 'red')
     ax.set_xticks([])
     ax.set_yticks([])
+    
+    
+#%%
+### FROM LECTURE 15 ############################################################################################
+
+### t-SNE ### 
+tsne = TSNE(n_components=2, learning_rate=200)
+data_tsne = tsne.fit_transform(data)   #reduce dimensionality of data
+
+#plot result
+plt.figure()
+plt.scatter(data_tsne[:,0], data_tsne[:,1], c=target, s=10, alpha=0.5, cmap='tab10')
+plt.colorbar(label='digit label', ticks=range(10))
+plt.clim(-0.5, 9.5)
+plt.title("t-SNE")
+plt.show()
+
+
+### clustering with KMeans ###
+clf = KMeans(n_clusters=10)   #cluster each digit
+clf.fit(data_tsne)
+centersKM = clf.cluster_centers_   #location of the clusters
+labelsKM = clf.predict(data_tsne)   #labels for each of the points
+
+#definingcolors
+cmap = mpl.colormaps['Spectral']
+colors = cmap(np.linspace(0, 1, 10))
+plt.figure()
+for i in range(10):
+    plt.scatter(data_tsne[labelsKM==i,0], data_tsne[labelsKM==i,1], s=5, alpha=0.5, color=colors[i])
+plt.scatter(centersKM[:, 0], centersKM[:, 1], marker='x', color='black')
+plt.title("Clustering on t-SNE")
+plt.show()
+
+

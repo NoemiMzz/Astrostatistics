@@ -167,7 +167,7 @@ if C==2:
     plt.show()
 
 #code adaptation in case MS finds more than two clusters
-#(usually when I don't suggest the centroids from the previous analysis)    
+#(usually when I don't suggest the centroids from the previous analysis or with different bandwidht)    
 else:
     print("---------------------------------------------------------")
     if C>2:
