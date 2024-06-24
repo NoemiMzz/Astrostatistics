@@ -4,6 +4,7 @@ from astroML.datasets import generate_mu_z
 from sklearn.gaussian_process import GaussianProcessRegressor, kernels
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
+from sklearn.model_selection import GridSearchCV
 from astropy.cosmology import LambdaCDM
 from sklearn.neighbors import KernelDensity
 import dynesty
@@ -367,8 +368,17 @@ print("ODDS RATIO:", oddsr)
 #%%
 ### CLONING DATA ###############################################################################################
 
+### cross validation for the KDE ###
+kde = KernelDensity(kernel='gaussian')
+bwrange = np.linspace(0.01, 0.5, 20)
+
+grid = GridSearchCV(kde, {'bandwidth': bwrange}, cv=10, n_jobs=-1)
+grid.fit(z_sample_sk)
+BW = grid.best_params_['bandwidth']   #best bandwidth
+
+
 ### z distribution ###
-kde = KernelDensity(bandwidth=0.15, kernel='gaussian')
+kde = KernelDensity(bandwidth=BW, kernel='gaussian')
 kde.fit(z_sample_sk)   #fit the data
 z_pdf = np.exp( kde.score_samples(x[:, np.newaxis]) )   #I find the pdf of the redshift
 
