@@ -45,9 +45,14 @@ def train_test_model(hparams):
         keras.layers.Dense(hparams[HP_NUM_UNITS], activation=hparams[HP_ACTIVATION], name="hidden"),   #hidden layer
         keras.layers.Dense(1, activation='sigmoid', name="output") ])   #output layer
     
-    model.compile(optimizer=hparams[HP_OPTIMIZER],
-                       loss='binary_crossentropy',   #loss function for a binary classifier
-                       metrics = ['accuracy'])
+    if hparams[HP_OPTIMIZER] == 'adam':
+        model.compile(optimizer=keras.optimizers.Adam(learning_rate=hparams[HP_L_RATE]),
+                           loss='binary_crossentropy',   #loss function for a binary classifier
+                           metrics = ['accuracy'])
+    elif hparams[HP_OPTIMIZER] == 'SGD':
+        model.compile(optimizer=keras.optimizers.SGD(learning_rate=hparams[HP_L_RATE]),
+                           loss='binary_crossentropy',   #loss function for a binary classifier
+                           metrics = ['accuracy'])
     
     model.fit(Xtrain, ytrain, epochs=5)
     _, accuracy = model.evaluate(Xtest, ytest)
@@ -149,13 +154,14 @@ tf.random.set_seed(42)
 #choosing what to optimize
 HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete([5, 7, 9]))
 HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam', 'SGD']))
-HP_ACTIVATION = hp.HParam('activation', hp.Discrete(['relu', 'tanh', 'sigmoid', 'leaky_relu']))
+HP_ACTIVATION = hp.HParam('activation', hp.Discrete(['relu', 'tanh']))
+HP_L_RATE= hp.HParam('learning_rate', hp.Discrete([10**(-2), 10**(-2.5), 10**(-3)]))
 
 METRIC_ACCURACY = 'accuracy'
 
 with tf.summary.create_file_writer('logs/hparam_tuning').as_default():
   hp.hparams_config(
-      hparams=[HP_NUM_UNITS, HP_OPTIMIZER, HP_ACTIVATION],
+      hparams=[HP_NUM_UNITS, HP_OPTIMIZER, HP_ACTIVATION, HP_L_RATE],
       metrics=[hp.Metric(METRIC_ACCURACY, display_name='Accuracy')] )
 
 #perform the optimization
@@ -163,18 +169,20 @@ test_accuracy = []
 hyperparams = []
 session_num = 0
 for num_units in HP_NUM_UNITS.domain.values:
-    for optimizer in HP_OPTIMIZER.domain.values:
+    for optimizer_name in HP_OPTIMIZER.domain.values:
         for activation in HP_ACTIVATION.domain.values:
-            hparams = {
-                HP_NUM_UNITS: num_units,
-                HP_OPTIMIZER: optimizer,
-                HP_ACTIVATION: activation, }
-            hyperparams.append([num_units, optimizer, activation])
-            run_name = "run-%d" % session_num
-            print('--- Starting trial: %s' % run_name)
-            print({h.name: hparams[h] for h in hparams})
-            run('logs/hparam_tuning/' + run_name, hparams)
-            session_num += 1
+            for l_rate in HP_L_RATE.domain.values:
+                hparams = {
+                    HP_NUM_UNITS: num_units,
+                    HP_OPTIMIZER: optimizer_name,
+                    HP_ACTIVATION: activation, 
+                    HP_L_RATE: l_rate, }
+                hyperparams.append([num_units, optimizer_name, activation, l_rate])
+                run_name = "run-%d" % session_num
+                print('--- Starting trial: %s' % run_name)
+                print({h.name: hparams[h] for h in hparams})
+                run('logs/hparam_tuning/' + run_name, hparams)
+                session_num += 1
 
 
 #%%
@@ -186,9 +194,10 @@ BEST = int(np.argmax(test_accuracy))   #find the index of the best
 
 #print the optimized parameters
 print("\nOptimized parameters")
-print("Numebr of nodes:", hyperparams[BEST][0])
+print("Number of nodes:", hyperparams[BEST][0])
 print("Activation function:", hyperparams[BEST][2])
 print("Optimizer:", hyperparams[BEST][1])
+print("Learning rate:", np.format_float_scientific(hyperparams[BEST][3], precision=3))
 
 keras.backend.clear_session()   #reset the NN
 np.random.seed(42)
@@ -204,11 +213,11 @@ model = keras.Sequential([
 print("\n", model.summary())
 
 if hyperparams[BEST][1] == 'adam':
-    model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=hyperparams[BEST][3]),
                        loss='binary_crossentropy',   #loss function for a binary classifier
                        metrics = ['accuracy'])
 elif hyperparams[BEST][1] == 'SGD':
-    model.compile(optimizer=keras.optimizers.SGD(learning_rate=1e-3),
+    model.compile(optimizer=keras.optimizers.SGD(learning_rate=hyperparams[BEST][3]),
                        loss='binary_crossentropy',   #loss function for a binary classifier
                        metrics = ['accuracy'])
 
