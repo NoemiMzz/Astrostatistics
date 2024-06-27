@@ -235,7 +235,7 @@ plt.figure(figsize=(4,4))
 plt.plot(fpr, tpr, lw=2, color='navy')
 if zoom:
     plt.ylim(min_zoom, 1)  
-plt.title("ROC curve - before optimization")
+plt.title("ROC curve - after optimization")
 plt.xlabel("false positive rate")    
 plt.ylabel("true positive rate") 
 plt.show()
